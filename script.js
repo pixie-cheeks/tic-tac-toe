@@ -20,7 +20,7 @@ const Cell = (valueID) => {
   return { setValue, getValue };
 }
 
-const gameboard = (() => {
+const gameBoard = (() => {
   const board = [];
 
   for (let i = 0; i < 3; i++) {
@@ -111,7 +111,7 @@ const GameController = (playerOne, playerTwo) => {
   }
 
   function printNewRound() {
-    gameboard.printBoard();
+    gameBoard.printBoard();
     console.log(`It's ${activePlayer.getName()}'s turn.`);
   }
 
@@ -120,7 +120,7 @@ const GameController = (playerOne, playerTwo) => {
       console.log('Enter `game.restart()` if you want to play again.');
       return;
     }
-    const isOccupied = !gameboard
+    const isOccupied = !gameBoard
       .setMarker(row, column, activePlayer.getMarker());
 
     if (isOccupied) {
@@ -138,7 +138,7 @@ const GameController = (playerOne, playerTwo) => {
   function checkOutcome() {
     if (cellsFilled < 5) return;
     if (cellsFilled > 8) return gameOver(0); // Draw or Tie function maybe
-    const winningThrees = gameboard.rowsOfThree
+    const winningThrees = gameBoard.rowsOfThree
       .map(row => row.map(cell => cell.getValue()));
     const hasPlayerWon = winningThrees.some(
       row => row.every(cell => cell !== ' ' && cell === row[0])
@@ -160,7 +160,7 @@ const GameController = (playerOne, playerTwo) => {
     }
 
     gameOverState = true;
-    gameboard.printBoard();
+    gameBoard.printBoard();
     console.log(message);
   }
 
@@ -169,7 +169,7 @@ const GameController = (playerOne, playerTwo) => {
     gameOverState = false;
     activePlayer = players[0];
 
-    gameboard.clearBoard();
+    gameBoard.clearBoard();
     printNewRound();
   }
 

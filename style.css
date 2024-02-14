@@ -5,7 +5,7 @@
   --cell-side-length: calc(var(--ttc-side-length)/3);
 }
 
-* {
+*:not(dialog) {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -45,27 +45,119 @@ h1 {
 }
 
 .ttc-head {
+  grid-area: 1 / 1 / 3 / 10;
   display: flex;
   justify-content: center;
   align-items: center;
-  grid-area: 1 / 1 / 3 / 10;
+}
+
+.results {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: bold;
+  color: greenyellow;
+  font-family: monospace;
+  border-radius: 10px;
 }
 
 .message {
-  font-size: 4rem;
+  font-size: 3rem;
 }
 
 
 .left-panel {
-  grid-area: 3 / 1 / 6 / 4;
+  grid-area: 3 / 1 / 6 / 5;
+  display: flex;
+  flex-direction: column;
+  padding: 0 60px;
+  gap: 10px;
+  font-size: 4rem;
+}
+
+.player {
+  background-color: #485272;
+  border-radius: 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.name,
+.mark {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.name {
+  background-color: rgb(85, 62, 66);
+  font-size: 2rem;
+  flex: 1;
+}
+
+.mark {
+  background-color: rgb(179, 100, 100);
+  font-size: 6rem;
+  flex: 1.5;
 }
 
 .right-panel {
-  grid-area: 3 / 7 / 6 / 10;
+  grid-area: 3 / 8 / 6 / 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+button.change-name {
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  font-size: 2rem;
+  box-shadow: 2px 2px 1px black;
+  background-color: rgb(146, 106, 31);
+  color: rgb(219, 216, 216);
+}
+
+button.change-name:active {
+  box-shadow: -2px 2px 1px black;
+  background-color: rgb(172, 120, 23);
+  color: white;
+}
+
+button.restart {
+  background-color: rgba(36, 95, 134, 0.705);
+  border: none;
+  padding: 0;
+  margin: 0;
+  border-radius: 15px;
+  box-shadow: 1px 1px 1px black;
+}
+
+button.restart svg {
+  fill: white;
+  width: 5rem;
+  background-color: transparent;
+  position: relative;
+}
+
+button.restart:active {
+  box-shadow: -0.8px 0 1px black;
+  background-color: rgb(36, 95, 134);
+  /* right: 2px; */
+}
+
+button.restart svg:active {
+  right: 1px;
+  top: 1px;
 }
 
 .footer {
   grid-area: 6 / 1 / 7 / 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .ttc-board {
@@ -78,7 +170,7 @@ h1 {
   gap: 4px;
   grid-area: board;
   grid-row: 3/6;
-  grid-column: 4/7;
+  grid-column: 5/8;
   overflow: hidden;
 }
 
@@ -87,4 +179,78 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+dialog {
+  margin: auto;
+  border: none;
+  border-radius: 5px;
+  /* width: 50%; */
+  background-color: rgb(210, 226, 116);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 4rem 4rem 2rem;
+}
+
+button.close {
+  border: none;
+  color: red;
+  background-color: transparent;
+  font-weight: 1000;
+  text-shadow: #202124;
+  font-size: 2.5rem;
+  font-family: Arial, Helvetica, sans-serif;
+  align-self: flex-end;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  opacity: 1;
+  user-select: none;
+}
+
+button.close:active {
+  color: rgb(170, 18, 18);
+}
+
+dialog .field {
+  display: flex;
+  flex-direction: column;
+  font-size: 1.5rem;
+}
+
+input {
+  border: 1px solid gray;
+  outline: none;
+  font-size: 2rem;
+  border-radius: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+input:focus {
+  border-color: black;
+}
+
+.one,
+.two {
+  margin-bottom: 1rem;
+}
+
+button.submit {
+  font-size: 2rem;
+  border-radius: 5px;
+  border: none;
+  box-shadow: 1px 1px black;
+  position: relative;
+}
+
+button.submit:active {
+  box-shadow: -1px -1px black;
+  top: 1px;
+  left: 1px;
+}
+
+::backdrop {
+  background-color: black;
+  opacity: 0.5;
 }

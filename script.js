@@ -20,8 +20,9 @@ const events = {
   },
   triggerEvent(eventName, data) {
     if (!this.events[eventName]) return;
+    const dataObj = { eventName, data };
 
-    this.events[eventName].forEach(handler => handler(data));
+    this.events[eventName].forEach(handler => handler(dataObj));
   },
 };
 
@@ -118,6 +119,11 @@ const GameController = (playerOne, playerTwo) => {
   let gameOverState = false;
 
   events.triggerEvent('gameInitialized', newRoundMessage());
+  bindEvents();
+
+  function bindEvents() {
+    events.addListener('gameRestartDOM', restart);
+  }
 
   function switchActivePlayer() {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
@@ -224,10 +230,11 @@ const consoleController = (() => {
   }
 
   function printMessage(message) {
-    if (message === 'gameRetry') {
-      message = 'Enter `game.restart()` if you want to play again.';
+    let text = message.data;
+    if (text === 'gameRetry') {
+      text = 'Enter `game.restart()` if you want to play again.';
     }
-    console.log(message);
+    console.log(text);
   }
 
   function printNewRound(message) {
@@ -242,6 +249,8 @@ const displayController = (() => {
   const boardDOM = menuDOM.querySelector('.ttc-board');
   const cellsDOM = boardDOM.children;
   const messageDOM = menuDOM.querySelector('.message');
+  const restartBtn = menuDOM.querySelector('button.restart');
+  const resultDOm = menuDOM.querySelector('.results');
 
   bindEvents();
   render();
@@ -259,6 +268,8 @@ const displayController = (() => {
 
   function bindEvents() {
     boardDOM.addEventListener('click', playRound);
+    restartBtn.addEventListener('click', restartGame);
+
     gameEvents.newRound.forEach(
       eventName => events.addListener(eventName, playNewRound)
     );
@@ -276,11 +287,18 @@ const displayController = (() => {
   }
 
   function displayMessage(message) {
-    if (message === 'gameRetry') {
-      message = 'Click the restart button to play again.'
+    let text = message.data;
+    if (text === 'gameRetry') {
+      text = 'Click the restart button to play again.'
+    }
+    if (message.eventName == 'gameOver') {
+      resultDOm.textContent = text;
+      messageDOM.textContent = '';
+      return;
     }
 
-    messageDOM.textContent = message;
+    messageDOM.textContent = text;
+    resultDOm.textContent = '';
   }
 
   function playNewRound(message) {
@@ -288,8 +306,14 @@ const displayController = (() => {
     displayMessage(message);
   }
 
+  function restartGame() {
+    events.triggerEvent('gameRestartDOM', null);
+  }
+
 
   return {};
 })();
 
 const game = GameController();
+const dialog = document.querySelector('dialog');
+dialog.showModal();

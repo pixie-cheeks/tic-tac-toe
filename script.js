@@ -1,3 +1,30 @@
+const events = {
+  events: {},
+  addListener(eventName, handler) {
+    if (!this.events[eventName]) {
+      this.events[eventName] = [];
+    }
+
+    this.events[eventName].push(handler);
+  },
+  removeListener(eventName, handler) {
+    let eventHandlers = this.events[eventName];
+    if (!eventHandlers) return;
+
+    for (let i = 0; i < eventHandlers.length; i++) {
+      if (eventHandlers[i] === handler) {
+        eventHandlers.splice(i, 1);
+        break;
+      }
+    }
+  },
+  triggerEvent(eventName, data) {
+    if (!this.events[eventName]) return;
+
+    this.events[eventName].forEach(handler => handler(data));
+  },
+};
+
 const Cell = (valueID) => {
   let value;
   setValue(valueID);
@@ -66,21 +93,7 @@ const gameBoard = (() => {
 
   }
 
-  function printBoard() {
-    let text = '';
-    for (let i = 0; i < 3; i++) {
-      if (i > 0) text += '\n';
-
-      for (let j = 0; j < 3; j++) {
-        text += `[${board[i][j].getValue()}]`;
-
-      }
-    }
-
-    console.log(text);
-  }
-
-  return { setMarker, getBoard, clearBoard, printBoard, rowsOfThree };
+  return { setMarker, getBoard, clearBoard, rowsOfThree };
 })();
 
 const Player = (name, marker) => {
@@ -104,27 +117,26 @@ const GameController = (playerOne, playerTwo) => {
   let cellsFilled = 0;
   let gameOverState = false;
 
-  printNewRound();
+  events.triggerEvent('gameInitialized', newRoundMessage());
 
   function switchActivePlayer() {
     activePlayer = activePlayer === players[0] ? players[1] : players[0];
   }
 
-  function printNewRound() {
-    gameBoard.printBoard();
-    console.log(`It's ${activePlayer.getName()}'s turn.`);
+  function newRoundMessage() {
+    return `It's ${activePlayer.getName()}'s turn.`;
   }
 
   function playRound(row, column) {
     if (gameOverState) {
-      console.log('Enter `game.restart()` if you want to play again.');
+      events.triggerEvent('gameRetry', 'gameRetry');
       return;
     }
     const isOccupied = !gameBoard
       .setMarker(row, column, activePlayer.getMarker());
 
     if (isOccupied) {
-      console.log('That cell is already occupied.')
+      events.triggerEvent('cellOccupied', 'That cell is already occupied.');
       return;
     }
 
@@ -132,12 +144,13 @@ const GameController = (playerOne, playerTwo) => {
     checkOutcome();
     if (gameOverState) return;
     switchActivePlayer();
-    printNewRound();
+    events.triggerEvent('finishTurn', newRoundMessage())
   }
 
   function checkOutcome() {
     if (cellsFilled < 5) return;
-    if (cellsFilled > 8) return gameOver(0); // Draw or Tie function maybe
+    if (cellsFilled > 8) return gameOver(0);
+
     const winningThrees = gameBoard.rowsOfThree
       .map(row => row.map(cell => cell.getValue()));
     const hasPlayerWon = winningThrees.some(
@@ -160,8 +173,7 @@ const GameController = (playerOne, playerTwo) => {
     }
 
     gameOverState = true;
-    gameBoard.printBoard();
-    console.log(message);
+    events.triggerEvent('gameOver', message)
   }
 
   function restart() {
@@ -170,13 +182,114 @@ const GameController = (playerOne, playerTwo) => {
     activePlayer = players[0];
 
     gameBoard.clearBoard();
-    printNewRound();
+    events.triggerEvent('gameRestart', newRoundMessage())
   }
 
   return { playRound, restart };
 };
 
-const game = GameController();
-/* const displayController = (() => {
+const gameEvents = {
+  newRound: ['gameInitialized', 'finishTurn', 'gameOver', 'gameRestart'],
+  message: ['gameRetry', 'cellOccupied'],
+};
 
-})(); */
+const consoleController = (() => {
+  let board = gameBoard.getBoard();
+
+  bindEvents();
+
+  function bindEvents() {
+    gameEvents.newRound.forEach(
+      eventName => events.addListener(eventName, printNewRound)
+    );
+
+    gameEvents.message.forEach(
+      eventName => events.addListener(eventName, printMessage)
+    );
+  }
+
+  function printBoard() {
+    let text = '';
+
+    for (let i = 0; i < 3; i++) {
+      if (i > 0) text += '\n';
+
+      for (let j = 0; j < 3; j++) {
+        text += `[${board[i][j].getValue()}]`;
+
+      }
+    }
+
+    console.log(text);
+  }
+
+  function printMessage(message) {
+    if (message === 'gameRetry') {
+      message = 'Enter `game.restart()` if you want to play again.';
+    }
+    console.log(message);
+  }
+
+  function printNewRound(message) {
+    printBoard();
+    printMessage(message);
+  }
+
+})();
+
+const displayController = (() => {
+  const menuDOM = document.querySelector('.ttc-menu');
+  const boardDOM = menuDOM.querySelector('.ttc-board');
+  const cellsDOM = boardDOM.children;
+  const messageDOM = menuDOM.querySelector('.message');
+
+  bindEvents();
+  render();
+
+  function render() {
+    const board = gameBoard.getBoard();
+    let index = 0;
+
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        cellsDOM[index++].textContent = board[i][j].getValue();
+      }
+    }
+  }
+
+  function bindEvents() {
+    boardDOM.addEventListener('click', playRound);
+    gameEvents.newRound.forEach(
+      eventName => events.addListener(eventName, playNewRound)
+    );
+    gameEvents.message.forEach(
+      eventName => events.addListener(eventName, displayMessage)
+    );
+  }
+
+  function playRound(event) {
+    if (!event.target.matches('.ttc-cell')) return;
+    const cell = event.target.dataset;
+
+    game.playRound(cell.row, cell.column);
+    render()
+  }
+
+  function displayMessage(message) {
+    if (message === 'gameRetry') {
+      message = 'Click the restart button to play again.'
+    }
+
+    messageDOM.textContent = message;
+  }
+
+  function playNewRound(message) {
+    render();
+    displayMessage(message);
+  }
+
+
+  return {};
+})();
+
+const game = GameController();

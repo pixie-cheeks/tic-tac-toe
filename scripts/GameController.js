@@ -86,15 +86,16 @@ const GameController = (players) => {
 
   function checkOutcome() {
     if (cellsFilled < 5) return;
-    if (cellsFilled > 9) return gameOver(0);
-
     const winningThrees = gameBoard.rowsOfThree
       .map(row => row.map(cell => cell.getValue()));
     const hasPlayerWon = winningThrees.some(
       row => row.every(cell => cell !== ' ' && cell === row[0])
     );
 
-    if (!hasPlayerWon) return;
+    if (!hasPlayerWon) {
+      if (cellsFilled === 9) gameOver(0);
+      return;
+    }
     gameOver(1);
   }
 

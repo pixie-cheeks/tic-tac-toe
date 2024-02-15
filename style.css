@@ -36,10 +36,6 @@ h1 {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
   grid-template-rows: repeat(6, 1fr);
-  /* grid-template-areas:
-    'head head head'
-    'left board right'
-    'foot foot foot'; */
   border-radius: 10px;
   overflow: hidden;
 }
@@ -154,7 +150,7 @@ button.restart svg:active {
 }
 
 .footer {
-  grid-area: 6 / 1 / 7 / 10;
+  grid-area: 6 / 3 / 7 / 10;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -185,12 +181,15 @@ dialog {
   margin: auto;
   border: none;
   border-radius: 5px;
-  /* width: 50%; */
   background-color: rgb(210, 226, 116);
-  display: flex;
-  flex-direction: column;
   position: relative;
   padding: 4rem 4rem 2rem;
+}
+
+.name-form {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
 button.close {
@@ -242,6 +241,8 @@ button.submit {
   border: none;
   box-shadow: 1px 1px black;
   position: relative;
+  padding: 3px;
+  user-select: none;
 }
 
 button.submit:active {

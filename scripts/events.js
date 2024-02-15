@@ -21,7 +21,7 @@ const events = {
   triggerEvent(eventName, data, noObj = false) {
     if (!this.events[eventName]) return;
 
-    let dataObj = noObj ? data : { eventName, data };
+    const dataObj = noObj ? data : { eventName, data };
 
     this.events[eventName].forEach(handler => handler(dataObj));
   },

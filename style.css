@@ -141,7 +141,6 @@ button.restart svg {
 button.restart:active {
   box-shadow: -0.8px 0 1px black;
   background-color: rgb(36, 95, 134);
-  /* right: 2px; */
 }
 
 button.restart svg:active {
